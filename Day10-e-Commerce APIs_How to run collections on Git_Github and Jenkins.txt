@@ -1,0 +1,290 @@
+Opencart Application APIs
+=========================
+Pre-requisites:
+---------------
+-Run XAMPP control panel and start Apache and MySQL services.
+
+-DB Access URL: http://localhost/phpmyadmin/---->DB name: openshop
+-Frontend application URL: http://localhost/opencart/upload/
+
+-Backend Application URL: http://localhost/opencart/upload/admin/ or http://192.168.1.64/opencart/upload/admin/, where 192.168.1.64 is local system IP
+address
+
+-Login backend application and create API user "demo" (already done)---->This is one time setup in app and once API username and key are created they
+can be used to create the session ie. to create an authorization token that will be used for all other requests sent through Postman.
+API Username: demo
+API Key: UG0dkiZpN3LGygGXRPUjdF35lP6ggLQHoYjPTYPBnQSeAYKGxPalz0uPWLwI1ALEDFl8DRD5gR0jsm3nkH5dlJCNOARdI2em4BM3p7jUfauTLirWXwqzNnEuMwvj4ICQsgLpuJagmobWumtaPCti2nwqmkDisDr3PBH8q3mBX8SwsYDfZXOp6Qz5zbzeDiJxBlB7IGPq2kLHgQz3FnFy7WB5N3Dp1ujNOEn74Y1bdeYSNRhTxE6AfX1ANOkVTKod
+
+-Opencart API documentation: https://docs.opencart.com/en-gb/system/users/api/---->It will be referred to understand the functionalities of different APIs
+to create proper tests for validation.
+Note: The script in this document is in python format, but since we only need to find URL, parameters and data requirements to create our tests in postman,
+we don't need to have full fledged python scripting knowledge for it.
+
+5 requests will be implemented through Postman
+----------------------------------------------
+1) To create a session and get authorization token
+2) Adding product to the cart
+3) Get cart content
+4) Editing product quantity in cart
+5) Removing product from cart
+
+Published collection (Opencart_RestAPI_CartModule)- https://documenter.getpostman.com/view/4924228/UzXM1JmQ#bbce8c7d-2ae7-4e2b-8aa6-adffcfdcb9c4
+2 ways to use it:
+1) Import the whole collection to postman--->Run In Postman>Postman for Windows>Select workspace>Collection is imported in Postman>Duplicate collection and 
+delete the imported collection (Day10Opencart_RestAPI_CartModule)
+2) Import cURL of each request in Postman to create all 5 requests in a new collection.
+
+Note: Make sure to modify the URLs in all the requests as those used in this collection has IP address instead of localhost.
+Also, replace the API key with the one we generated earlier and check API username as well in request 1.
+Once the authorization token is generated change it in request 2-5 as well.
+
+
+Input and Output of Each requests:
+----------------------------------
+1) Modify IP in URL and change API key in request "Create Session/Token". Running it successfully will generate api_token. The tests script has been created
+to store api_token as collection variable "api_token_val" that will be used in later requests.
+Response Body:
+{
+    "success": "Success: API session successfully started!",
+    "api_token": "e57d992470609a4303e8b2baae"//---->THis value will be store in collection variable "api_token_val" to be used in other requests.
+}
+
+Now, check the collection variable "api_token_val" has been created.
+
+2) For "Add product to cart" request we need to provide values to parameters product_id and quantity which are created as collection variable in pre-
+request script.
+Note: The name of variables should be same as column name in table of the database. The information will be provided in API documentation provided by
+developer. Check these details in "Cart" part of the "Opencart API documentation".
+Response Body:
+{
+    "success": "Success: You have modified your shopping cart!"
+}
+
+Now, check the new entry in oc_cart table of the database. Also, validate the 2 new collection variables "product_id" and "quantity" are created having
+the same values associated as defined in pre-request script.
+
+3) For "Get Cart content" request we need to provide Product ID (ie. value from variable "product_id") which in turn will return a Cart ID (Key) (which will
+be stored as environment variable "cart_id_key").
+Response Body:
+{
+    "products": [
+        {
+            "cart_id": "1",
+            "product_id": "40",
+            "name": "iPhone",
+            "model": "product 11",
+            "option": [],
+            "quantity": "2",
+            "stock": true,
+            "shipping": "1",
+            "price": "$123.20",
+            "total": "$246.40",
+            "reward": 0
+        }
+    ],
+    "vouchers": [],
+    "totals": [
+        {
+            "title": "Sub-Total",
+            "text": "$202.00"
+        },
+        {
+            "title": "Eco Tax (-2.00)",
+            "text": "$4.00"
+        },
+        {
+            "title": "VAT (20%)",
+            "text": "$40.40"
+        },
+        {
+            "title": "Total",
+            "text": "$246.40"
+        }
+    ]
+}
+
+Now, check the creation of environment variable "cart_id_key" that will be used as input for later requests.
+
+4) The Cart ID (Key) generated in request 3 will serve as an input for "Edit product quantity in cart". Also we have to provide new "quantity" value to
+update the Cart.
+Response Body:
+{
+    "success": "Success: You have modified your shopping cart!"
+}
+
+No new variable are created in this request but check the value in quantity column cart of table oc_cart change to 5 in database.
+
+5) The Cart ID (Key) generated in request 3 will again serve as input for "Remove product from cart" request to delete content from cart.
+Also, since it's the last request we will unset all the variables (collection and environment) created from request 1 to 4 through tests script.
+Note: In requests 2, 4 and 5, note that we are sending post request to add, update and delete the cart where generally we use post, put/patch and delete
+requests respectively. This is because opencart API is designed like that and we may encounter such APIs in real-time as well. Hence, it is important
+to understand the API documentation thorougly before starting the testing process.
+Response Body:
+{
+    "success": "Success: You have modified your shopping cart!"
+}
+
+Like in request 4, no new variable are created in this request but check the removal of order in table oc_cart of database. Also, check the removal of all
+variables.
+Run the collection "Day10Opencart_RestAPI_CartModule" and once all the tests are passed, the chaining and testing process is completed for the first few
+opencart's APIs. This run will provide reports readable only in postman (both web and desktop apps).
+Next, we will look into other ways to run a collection and generate reports in HTML format to make it readable over a normal browser window.
+
+
+Approaches to run collections outside Postman and generating report in HTML format
+==================================================================================
+1) Running collection locally (cmd)
+2) Running through collection URL provided by postman
+3) Running through jenkins
+4) Running through github repository
+
+Pre-requisites
+--------------
+i) newman component needs to be installed. It is a nodejs component (we have setup notejs in Day 3 training. Aother nodejs component NPM was required to
+create our own APIs. Similarly, newman component is required to run collection through command prompt. So, nodejs+NPM are the pre-requisite to install
+newman compontent)
+ii) newman-reporter-html component needs to be installed to generate collection execution report in html format.
+
+Since, we already have nodejs and npm just check the version of nodejs and npm in cmd.
+C:\Users\hp>node -v
+v18.13.0
+
+C:\Users\hp>npm -v
+8.19.3
+
+Installing newman
++++++++++++++++++
+To install newman run following command in cmd: npm install -g newman
+C:\Users\hp>npm install -g newman
+npm WARN deprecated har-validator@5.1.5: this library is no longer supported
+npm WARN deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+npm WARN deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+
+added 112 packages, and audited 113 packages in 13s
+
+6 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm notice
+npm notice New major version of npm available! 8.19.3 -> 9.4.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v9.4.1
+npm notice Run npm install -g npm@9.4.1 to update!
+npm notice
+
+
+
+Installing newman-reporter-html
++++++++++++++++++++++++++++++++
+Run following command in cmd: npm install -g newman-reporter-html
+
+C:\Users\hp>npm install -g newman-reporter-html
+npm WARN deprecated har-validator@5.1.5: this library is no longer supported
+npm WARN deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+npm WARN deprecated uuid@3.3.2: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+npm WARN deprecated mkdirp@0.5.1: Legacy versions of mkdirp are no longer supported. Please update to mkdirp 1.x. (Note that the API surface has changed to use Promises in 1.x.)
+
+added 171 packages, and audited 172 packages in 10s
+
+7 packages are looking for funding
+  run `npm fund` for details
+
+16 vulnerabilities (3 moderate, 7 high, 6 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+Steps to execute collection locally:
+++++++++++++++++++++++++++++++++++++
+1) Export the collection (get the json file)-Exported "Day10Opencart_RestAPI_CartModule.postman_collection.json" to path C:\Users\hp\Desktop\API Testing Reference\Collections
+2) Run the collection in cmd
+
+Approach 1: Open cmd in folder where the collection is exported> Run command "newman run <collectionname.json>
+-----------
+C:\Users\hp\Desktop\API Testing Reference\Collections>newman run Day10Opencart_RestAPI_CartModule.postman_collection.json
+
+It will run to completion to result in tabular form as below:
+
+
+┌─────────────────────────┬───────────────────┬───────────────────┐
+│                         │          executed │            failed │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              iterations │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│                requests │                 5 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│            test-scripts │                10 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│      prerequest-scripts │                 6 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              assertions │                 9 │                 0 │
+├─────────────────────────┴───────────────────┴───────────────────┤
+│ total run duration: 780ms                                       │
+├─────────────────────────────────────────────────────────────────┤
+│ total data received: 644B (approx)                              │
+├─────────────────────────────────────────────────────────────────┤
+│ average response time: 66ms [min: 38ms, max: 127ms, s.d.: 31ms] │
+└─────────────────────────────────────────────────────────────────┘
+
+
+Similarly, to generate HTML report alongwith running the collection, run following command: "newman run <collectionname.json> -r html"
+
+C:\Users\hp\Desktop\API Testing Reference\Collections>newman run Day10Opencart_RestAPI_CartModule.postman_collection.json -r html
+
+Running it will not show any data in cmd screen but will generate a new folder "newman" with an HTML report "newman-run-report-2023-02-02-18-52-42-149-0.html"
+in folder where the collection is residing ie. "C:\Users\hp\Desktop\API Testing Reference\Collections" in this case.
+This report can be shared with anyone for review.
+Note: newman folder will be created only during the first run of a collection located in a particular location. All reports for collections residing in
+same folder location will reside in same newman folder.
+
+
+Approach 2: Running collection remotely through URL (option for other team members when collection can't be exported to their local machine)
+-----------
+To generate a URL for collection click 3 dots next to collection name>Click "Share">via JSON Link>Copy the link>In cmd commands instead of providing the
+name of file, paste this URL ie. newman run <URL> -r html
+
+C:\Users\hp\Desktop\API Testing Reference\Collections>newman run https://api.postman.com/collections/25206236-4d12ec74-823b-45c9-964c-030e0cef071d?access_key=PMAT-01GR9RE8QXJ1WR3H1KW677GTV4 -r html
+
+This will create the html report within the newman folder created earlier. (The report will be create in whichever folder we are running the command in. If
+a newman folder exists in that folder the report will be created inside it, otherwise a new "newman" folder will be created)
+
+
+Approach 3: Running collection through a continuous integration tool like Jenkins
+-----------
+Note: For approach 3 and 4, instead of "newman run <URL> -r html" enter the command as "C:\Users\hp\AppData\Roaming\npm\newman run <URL> -r html" ie. with
+c drive location of newman file while performing "Build" section configuration.
+
+Login jenkins on localhost>New Item>Enter Item name>Frestyle Project>Ok>On next window go to Build section>Select "Execute windows batch command" from
+dropdown> In command field, enter command from approach 2 (using URL) to run the project ie. C:\Users\hp\AppData\Roaming\npm\newman run https://api.postman.com/collections/25206236-4d12ec74-823b-45c9-964c-030e0cef071d?access_key=PMAT-01GR9RE8QXJ1WR3H1KW677GTV4
+or to generate html report
+C:\Users\hp\AppData\Roaming\npm\newman run https://api.postman.com/collections/25206236-4d12ec74-823b-45c9-964c-030e0cef071d?access_key=PMAT-01GR9RE8QXJ1WR3H1KW677GTV4 -r html
+>Apply and Save>Return to dashboard and run the item/project.
+
+
+Approach 4: Running from Github repository
+----------
+Create remote repository: Login github>Create a new repository>Copy the new repository URL (https://github.com/ankit210689/Opencart_API_Testing.git)
+Create local repository: Go to folder where collection is exported>Right click>Git bash here>
+git init>
+git remote add origin https://github.com/ankit210689/Opencart_API_Testing.git>
+git status>
+git add Day10Opencart_RestAPI_CartModule.postman_collection.json>
+git status>
+git commit -m "first commit">
+git push origin master>
+Refresh the github repository page and check the availability of collection file>Go to jenkins>New Item>ENter name "Opencart_API_Github">Freestyle Project>
+Ok>Under Source Management select "Git">Copy URL of remote repository on Github> Scroll to Build Steps>Select "Execute Windows batch command" in drop-down>
+ENter following command: "C:\Users\hp\AppData\Roaming\npm\newman run Day10Opencart_RestAPI_CartModule.postman_collection.json -r html">Apply and Save>Run.
+After successful run check the creation of "newman" folder in path "C:\ProgramData\Jenkins\.jenkins\workspace\Opencart_API_Github" and html report inside
+that folder.
+
+(While working on approach 3 and 4, I got "newman not recognized" error initially which was fixed by providing the complete path of newman file location
+ie. C:\Users\hp\AppData\Roaming\npm\newman" before run command as suggested on "https://stackoverflow.com/questions/67412163/newman-is-not-recognised-as-an-internal-or-external-command-in-jenkins-on-window")
+
+
+

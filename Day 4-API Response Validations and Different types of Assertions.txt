@@ -1,0 +1,346 @@
+(PPT Link-https://www.slideshare.net/pavan5780/api-response-validations-assertions)
+
+
+API Response Validations
+========================
+-Status Code
+-Headers
+-Cookies
+-Response Time
+-Response body
+
+
+Assertions (Validation Point)
+=============================
+-pm library in Postman contains functions to be used to create assertions.
+-Funtions are developed using JavaScript only and we have to pass some parameters to functions to perform validation.
+
+-We have to write our own JavaScript function and inside this function we will call pm.<function name> and pass parameters to it to perform validations.
+-All validation functions must be written inside "Tests" tab of request.
+-Once done save the request before running/sending.
+
+Types of Functions:
+-------------------
+1) Normal Function
+2) Arrow Function (More popular)
+
+JavaScript Frameworks:
+----------------------
+-Mocha Framework
+-Chai Framework--->Postman uses chai framework
+
+
+Syntax of different functions created using Chai Assertion Library:
+-------------------------------------------------------------------
+Normal Function: (function name will be used)
+---------------
+pm.test("Test Name", function()
+			{
+				//assertion;
+			}
+	);
+
+
+Arrow Function: (Instead of function name an arrow will be used)
+---------------
+pm.test("Test Name", () =>
+			{
+				//assertion;
+			}
+	);
+
+
+Implementation of functions to perform different kind of validations:
+---------------------------------------------------------------------
+1) Testing status codes-
+-----------------------
+-Test for the response status code: 
+-------------------------------------
+pm.test("Status code is 200", () => {
+	pm.response.to.have.status(200);
+});
+
+
+-If you want to test for the status code being one of a set, include them all in an array and use "oneOf" operator
+----------------------------------------------------------------------------------------------------------------
+pm.test("Successful POST request", () => {
+	pm.expect(pm.response.code).to.be.oneOf([201,202]);
+});
+
+-Check the status code text
+----------------------------
+pm.test("Status code name has string", () => {
+	pm.response.to.have.status("Created");
+}); 
+
+
+Note:
+++++
+-In these functions, text written in double quotes is the name of the validation and is user defined.
+-The important part is content inside the assertion, whether it's the status code and some text displayed as response to a specifi kind of request.
+-Running these functions as tests will show another tab named "Test Results" in Response. Check the result of each test in this tab as below:
+PASS Status code is 200<------Test name
+PASS Successful GET request<----Test name
+^
+|__Test Status____
+			|
+			V
+or if it fails "FAIL Status code is 200 | AssertionError: expected response to have status code 201 but got 200"
+
+
+2) Testing Headers-
+-------------------
+-In Headers tab we have multiple fields but we need to focus only on static fields like "Content-Type", "Connection" etc. for testing Headers.
+-Content-Type field provides information regarding the response format like json or xml and we can perform validations like whether json is the response
+format or not. It contains information like MIME type ie. application/json that can be used for response format validation.
+
+-Check that a response header is present
+----------------------------------------
+pm.test("Content-Type header is present", () => {
+	pm.response.to.have.header("Content-Type");
+});
+
+-Test for a response header having a particular value
+-----------------------------------------------------
+pm.test("Content-Type header is application/json", () => {
+	pm.expect(pm.response.headers.get('Content-Type'))
+	.to.eql('application/json; charset=utf-8');
+});
+
+
+
+3) Testing Cookies-
+-------------------
+-Like in headers testing, in cookies testing too we will focus on static values instead of dynamic ones like Cookie Language etc.
+
+-Test if a cookie is present in the response
+--------------------------------------------
+pm.test("Cookie 'language' is present", () => {
+	pm.expect(pm.cookies.has('language')).to.be.true;
+});
+
+-Test for a particular cookie value
+------------------------------------
+pm.test("Cookie language has value 1", () => {
+	pm.expect(pm.cookies.get('language')).to.eql('en-gb');
+});
+
+
+Note: Need an API to respond with cookies to test this. My current APIs don't have any cookies in their response payload.
+-----
+So, I have used following validation to test if a cookie is not present in response.
+
+pm.test("Cookie 'language' is not present", () => {
+	pm.expect(pm.cookies.has('language')).to.be.false;
+});
+
+It passed (ie. PASS Cookie 'language' is not present).
+
+
+4) Testing Response time-
+-------------------------
+-We should provide an approx. duration to test response time as it may vary according to network speed, server issues, browser or system issues etc.
+-An exact duration should only be used if it is explicitly specified in requirement.
+
+-Test for the response time to be below a specified range
+----------------------------------------------------------
+pm.test("Response time is less than 200 ms", () => {
+	pm.expect(pm.response.responseTime).to.be.below(200);
+});
+
+-Test for the response time to be above a specified range
+----------------------------------------------------------
+pm.test("Response time is less than 200 ms", () => {
+	pm.expect(pm.response.responseTime).to.be.above(10);
+});
+
+
+Till now we have used functions that can be used with different request types for validation.
+But for Response Body validation, we will write functions specifically for the kind of request we are sending and it cannot be used for other request types.
+
+5) Testing Response Body-(Most important among all validations)
+------------------------
+
+-Asserting a value type (Test the type of any part of your response)
+--------------------------------------------------------------------
+Response Body to validate:
+++++++++++++++++++++++++++
+
+{
+    "id": 1,
+    "first_name": "Robert",
+    "last_name": "Schwartz",
+    "email": "rob23@gmail.com"
+}
+
+Validation code:
+++++++++++++++++
+const jsonData = pm.response.json();<----This statement is mandatory. Here, we are capturing response from pm library to "jsonData" variable for validations.
+pm.test("Test data type of the response", () => {
+	pm.expect(jsonData).to.be.an("object");<-----jsonData variable we captured in step 1 will be passed as parameter for each validation
+	pm.expect(jsonData.id).to.be.a("number");
+	pm.expect(jsonData.first_name).to.be.a("string");
+	pm.expect(jsonData.email).not.to.be.an("array");	
+});
+
+Test Result:
+++++++++++++
+PASS Test data type of the response
+
+
+
+-Asserting array properties (Check if an array is empty and if it contains particular items)
+---------------------------------------------------------------------------------------------
+Response Body to Validate:
+++++++++++++++++++++++++++
+{
+    "id": 1,
+    "first_name": "Robert",
+    "last_name": "Schwartz",
+    "email": "rob23@gmail.com"
+    "courses": [
+		"Java",
+		"Selenium"
+	]
+}
+
+Validation Code:
+++++++++++++++++
+pm.test("Test array properties", () => {
+	pm.expect(jsonData.courses).to.include("Java");<-----Validation 1-Check if courses array includes "Java"
+	pm.expect(jsonData.courses).to.have.members(["Java","Selenium"]);<----Validation 2-Check if courses array have all listed members
+});
+
+Note: I don't have an array field in my API so just made a note of it here and will try with an array API later.
++++++
+
+-Validation of JSON field values in Response
+--------------------------------------------
+
+Response Body to validate:
+++++++++++++++++++++++++++
+{
+    "id": 1,
+    "first_name": "Robert",
+    "last_name": "Schwartz",
+    "email": "rob23@gmail.com"
+    "courses": [
+		"Java",
+		"Selenium"
+	]
+}
+
+Validation Code:
+++++++++++++++++
+pm.test("Value of all fields in response body", () => {
+	var jsonData=pm.response.json();<---Defined as local variable here, but can defined outside of function like in "Asserting a value type" example above
+	pm.expect(jsonData.id).to.eql(1);
+	pm.expect(jsonData.first_name).to.eql("Robert");
+	pm.expect(jsonData.last_name).to.eql("Schwartz");
+	pm.expect(jsonData.email).to.eql("rob23@gmail.com");
+	pm.expect(jsonData.courses[0]).to.eql("Java");<----------For a field having data in array we have to provide index of array validate specific value
+	pm.expect(jsonData.courses[1].to.eql("Selenium");
+});
+
+
+Note:
++++++
+We have applied multiple conditions in these validation functions, but even if just one of those conditions fails the whole function will fail. That's how
+assertions work.
+Also, till now we have tried validations for GET request for one set of results in response body which made it easier to find json path of each field.
+But we can also try it with multiple results and in that case we will use jsonpathfinder and jsonpath online evaluator tools to get json path of each field.
+jsonData is the variable that is storing the response body data. So, copy the json path after this variable like "jsonData.<path from jsonpathfinder>"
+
+
+-Validating JSON Schema (Most imporatant among all validations)
+-----------------------
+  
+JSON Schema-Type of data that can be stored in JSON file.
+There are tools to get json schema of an API. Google search "generate json schema" and select any available tool.
+I have used https://www.liquid-technologies.com/online-json-to-schema-converter
+
+Copy response body from Postman and paste it in JSON field to generate schema.
+Response Body:
+++++++++++++++
+{
+    "id": 1,
+    "first_name": "Robert",
+    "last_name": "Schwartz",
+    "email": "rob23@gmail.com"
+}
+
+Generated schema from web tool:
++++++++++++++++++++++++++++++++
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "first_name",
+    "last_name",
+    "email"
+  ]
+}
+
+
+So, in JSON schema validation we will validate if the response data follows the overall schema of json. 
+
+JSON Schema Validation
++++++++++++++++++++++++
+pm.test('Schema is valid', function() {<-------Normal function is written but we can use arrow function as well
+	pm.expect(tv4.validate(jsonData, schema)).to.be.true;<----tv4 is a library in Postman. Here, tv stands for tiny validator and version 4.
+});
+
+Also, validate is a function that will take attributes:
+1) "jsonData" is variable that needs to be created. We have already created it for earlier validation, so we haven't created it again here.
+2) "schema" is a variable that needs to be created and assign it the generated scheme above. This step will be done before running the validation.
+
+var schema= {
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "first_name": {
+      "type": "string"
+    },
+    "last_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "first_name",
+    "last_name",
+    "email"
+  ]
+}
+
+
+This concludes the validation for one GET request. For exercise we can add these validations for other requests as well but make sure to make necessary
+modifications as per the response payload received from different kind of requests.
+For GET request we have to perform more number of validations with more focus on response body, data validation and schema validation, as with GET request
+we get response data and that data needs to be validated as well.
+
+
+Once the validations are added run all the requests at one by clicking the 3 dots next to collection name and selecting Run Collection>Select requests to
+run (Check all for all requests)>Select "Iteration" (1 for running once)>Delay time (Should be 0 unless you want some delay between execution of each
+request)>Click "Run StudentsAPI".

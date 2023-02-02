@@ -1,0 +1,121 @@
+API Testing Introduction
+=========================
+-Frontend Testing-Web
+-Backend Testing-API, Database
+
+-API Testing can be performed both manually and using automation.
+---Manual API testing tool-Postman
+---Automation API testing tool-RestAssured (Java Programming Basics and TestNG frameworks are the pre-requisites)
+
+What is client and Server?
+--------------------------
+-A client is a computer hardware device or software that accesses a service made available by a server. A server is often located on a separate physical
+computer. eg. Browser on a personal computer
+
+-A server is a physicial computer dedicated to run services to serve the needs of other computers. Depending on the service that is running it could be a
+file server, database server, home media server or web server.
+
+2 ways communication between client and server:
+A Client-------->Uses Internet to access data from---------->A Server
+A Client<--------Receives a response of request from<---------A Server
+
+
+Client/Server Architecture
+---------------------------
+1-Tier Architecture---Client and server running on same machine. eg. A user creating a document and saving it on his own machine.
+2-Tier Architecture---Multiple client applications access one common database. eg. Intranet applications within an organization.
+3-Tier Architecture---3 separate tiers are Client, Business Logic and Server. The buisness logic here will get request from client, process it and send to
+the server to fetch required data, get the data from server and return the information to client. eg. All modern Web applications follow this architecture.
+Another way to demonstrate 3 tier architecture is following 3 layers:
+---Presentation Layer (Scripting languages like HTML5, JavaScript, CSS are used)-Front end or UI----->Web Development--->Web Testing
+---Application Layer (Programming langurages like Java, .Net, C#, Python are used)-Business Logic----->Programming---->API Testing
+---Data Layer (MySQL, SQL Server, MangoDB, Oragle, PostgreSQL)-Database----->Database development----->Database Testing
+
+
+What is an API?
+---------------
+-Application program interface (API) is way to communicate between 2 applications where applications may differ in their platforms or in terms of technology.
+-API is a way of communication between 2 layers, so it resides in middle layer of a web app following 3-tier architecture.
+-So as part of API testing we send different kind of requests to the API and analyze it's response to each kind of request.
+
+Advantages of API Testing
+--------------------------
+Sequence of readiness in product development is Database--->Business Login or API----->Frontend or UI.
+So, as soon as the APIs are ready, we can start API testing to test the functinality of the business logic. This way there will be lesser functional
+testing required by the time the frontend is ready because most of the business logic and functionalty is already tested as part of API testing.
+This quickens the overall development process and eliminate the chances of critical functionality issues being found at the later stages of development.
+80% API Testing, 20% GUI and Integration Testing
+
+API-Restaurant Analogy
+-----------------------
+Customer--->(Orders)--->Waiter--->(Notifies)---->Chef/Kitchen---->(Prepares Food)-->Waiter---->(Serves food)---->Customer
+
+Types of API
+-------------
+---Simple Objective Access Protocol (SOAP)-Old service and technology, so lesser use in modern web development-Only XML format is supported
+---Representational State Transfer (REST)-Lates service and technology, so used in almost 80% of modern web development-Multiple formats like XML, JSON etc.
+are supported in REST. Some examples of RestAPI are Payment Gateways, Google Maps, Twitter, Facebook, Linked-In, Github etc.
+Both of these are web services.
+
+API vs WebService
+------------------
+-Web service is an API wrapped in HTTP.
+-When we deploy API on internet and make it available for general public it is called a webservice.
+-All webservices are APIs BUT All APIs are not webservices.
+---Without putting an API on internet we can't call it a webservice.
+---We can develop and test APIs without internet but for them to be called webservice we have to put/deploy them on internet/production.
+
+
+Rest API Methods/HTTP request types
+-----------------------------------
+Basic HTTP requests are:
+---get-To get response from server/Retrieve information about an API resource
+---post-To send out data to server to store/Create an API resource
+---put-To update existing data in database/Update an API resource
+---patch-To update partial data in database/Update an API resource partially/Rarely used
+---delete-To delete existing data from database/Delete an API resource
+All the operations performed on a web app is a form of on or the other request types mentioned above.
+
+Rest API Functionality:
+------------------------
+HTTP Request (get,post,put,patch (used for update),delete)--->Request Message------>API------>Response Message------>Validations Performed (Response status code, Data etc.)
+
+HTTP vs HTTPS
+---------------
+HTTP-Communication happens without password encryption. So, data is visible in original format and hence no security.
+HTTPS-Communication happens with password encryption. So, the private information here is encrypted which provide more security.
+
+Other Important Terminologies for API Testing
+---------------------------------------------
+Consider a URL "https://google.com/articles/articlename". Here,
+
+URL-Uniform Resource Locator---https://google.com/articles/articlename
+URI-Uniform Resource Identifier---google.com/articles/articlename---In some case URI is considered the same as URL
+URN-Uniform Resource Name---articlename
+
+Also,
+Scheme/Protocol---https://
+Host/Domain---google.com---It can change depending on where the resource is located and can change throughout the development process
+Path/End point---articles/articlename---Developer will provide it for API testing and it will not change
+Resource---articlename
+
+
+Feature-A term used in manual testing to test some functionality
+Resource-A term used in API automation testing referring some functionality.
+
+Payload-means body of the HTTP request and HTTP response message.
+---Request Payload-The data provided with request like Source, Destination, Date of Journey while booking a flight.-Data transferred in JSON or XML formats
+---Response Payload-The data returned by the server in response to request.
+
+Components of HTTP Request: URI, Headers, Payload (in JSON/XML format) 
+Components in HTTP Response: Status Code-200 Ok, Response Payload, String message successful
+
+
+Sample API website:
+---------------------
+reqres.in---Website to get sample API and get responses for each request method.
+https://reqres.in/api/users?page=2---Demo API--Can be typed in browser to get a response but there are different methods built in on reqres.in to validate
+the response of each request method.
+Also, only GET request can be validated on browser and to validate other types of request methods we need tools like Postman or RestAssured.
+
+---As an API tester we need to know what kind of requests an API will receive and the repective response for each kind of request.

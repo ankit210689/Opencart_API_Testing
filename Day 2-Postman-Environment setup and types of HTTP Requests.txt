@@ -1,0 +1,148 @@
+Postman-Environment setup and types of HTTP Requests
+=====================================================
+
+Postman-API Manual Testing tool
+---Both Rest and SOAP APIs are supported.
+---Desktop and web versions are available and either can be used for testing
+---Desktop version will be a permanent install
+---Web version will be accessible through a URL
+---Both will share the same workspace and any changes made to either version will reflect on other version.
+
+
+Postman Setup-Dektop Version
+-----------------------------
+---Gmail account is a pre-requisite
+---Google search for "download postman"or directly access their official website "https://www.postman.com/downloads/"
+---Download the exe for latest version.
+---Install and sign in using gmail account.
+
+Components in Postman
+-----------------------
+-Workspace: area where we maintain and save files. It is the first important entity in Postman.
+---Setup the workspace. It will be created on google itself.
+---New button can be used to create a new workspace
+---Workplace Settings button can be used to change anything or delete an existing workspace.
+---Click on the workspace name to Rename the workspace name
+
+-Collection: contains multiple folders and HTTP requests.  It is the second important entity in Postman.
+---Create a collection-Go to the workspace>File>New>Collection>New Collection is created.
+---Rename a collection-Click on collection name and edit or we can just click the three dots next to collection name and select Rename option.
+---Delete a collection-Delete option in three dot menu
+---Duplicate a collection-Duplicate option in three dot menu
+---Run the collection-We will be able to run a collection only when we have some HTTP requests inside it
+---Any number of collections can be created in a workspace.
+
+-Create requests in collection:
+---Types of HTTP requests are Get, Post, Put, Patch (rarely used), Delete
+---Using sample APIs from reqres.in created a few test cases:
+
+TCID-Request Type-URI-Request Payload-Response Payload-Status Code
+1-GET-https://reqres.in/api/users?page=2-na-Returns list of users in a page-200
+2-POST-https://reqres.in/api/users-{"name": "pavan", "job":"trainer"}-{"id": "599", "createdAt": "2018-07-7T05:43:53.310Z"}-201
+3-PUT-https://reqres.in/api/users/599-{"name": "pavan", "job":"engineer"}-{"updatedAt":"<Current timestamp>"}-200
+4-DELETE-https://reqres.in/api/users/599-na-na-204
+
+Note: In URI "https://reqres.in/api/users?page=2", after question mark (?) we provide query parameters (page=2) to get the exact resource from database.
+
+TCID 1: Creating GET Request
+-----------------------------
+-Create a new request by clicking New Request option or + button.
+-Rename to "GetRequest" and select GET from the dropdown and enter URL from TCID 1 in corresponding field.
+-Click Send to get a response from the API.
+
+-Analyzing Response: We will do following validations on all responses:
+---Status code validation
+---Time taken to get the response
+---Size of data received
+---Response body (json/xml)
+---Cookies
+---Headers
+
+-Save GetRequest by clicking the Save button.
+
+TCID 2: Creating POST Request
+-----------------------------
+-Create PostRequest>select POST from dropdown>Enter URL for TCID 2>GO to Body tab and select "raw" radio button>Select JSON format in corresponding
+dropdown> Copy Request Payload data from TCID 2>Send
+
+Request Payload sent for PostRequest:
+--------------------------------
+{
+    "name": "pavan",
+    "job": "trainer"
+}
+
+Response Payload received for PostRequest:
+-------------------------------------------
+{
+    "name": "pavan",
+    "job": "trainer",
+    "id": "8",
+    "createdAt": "2023-01-05T22:10:03.209Z"
+}
+
+-Analyzing Response: We will do same validations as TCID 1.
+
+-Save PostRequest by clicking the Save button.
+
+
+TCID 3: Creating PUT Request
+-----------------------------
+-Create PutRequest>select PUT from dropdown>Enter URL for TCID 3 (modify ID to 8)>GO to Body tab and select "raw" radio button>Select JSON format
+in corresponding dropdown> Copy Request Payload data from TCID 3>Send
+
+Request Payload sent for PutRequest:
+-------------------------------------
+{
+    "name": "pavan",
+    "job": "engineer"
+}
+
+Response Payload received for PutRequest:
+-------------------------------------------
+{
+    "name": "pavan",
+    "job": "engineer",
+    "updatedAt": "2023-01-05T22:19:09.660Z"
+}
+
+-Analyzing Response: We will do same validations as TCID 1.
+
+-Save PutRequest by clicking the Save button.
+
+
+TCID 4: Creating DELETE Request
+--------------------------------
+-Create DeleteRequest>select DELETE from dropdown>Enter URL for TCID 4 (modify ID to 8)>Send (No body component is required for Delete request)
+-Validations: Status Code: 204 No content
+--Save DeleteRequest by clicking the Save button.
+
+These are 4 kinds of requests we will look into for now.
+
+-We can share an existing collection by using Export option in three dots menu next to the collection name.
+-Also, we can reuse an existing collection by using Import option next to "New" near collection name. Click Import button>File>Select the JSON collection
+file>Ok.
+
+
+HTTP Status Codes
+------------------
+3 different series:
+-200 series (Request Successful)
+---200: Ok
+---201: Created
+---202: Accepted
+---203: Non-authoritative Information
+---204: No content
+-400 series (Unauthorized access to API)
+---400: Bad Request
+---401: Unauthorized
+---403: Forbidden
+---404: Not Found
+---409: Conflict
+-500 series (Server or Network problem)
+---500: Internal Server Error
+---501: Not Implemented
+---502: Bad Gateway
+---504: Service Unavailable
+---599: Network Timeout
+

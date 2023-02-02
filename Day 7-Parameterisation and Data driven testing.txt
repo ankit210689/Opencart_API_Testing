@@ -1,0 +1,129 @@
+Parameterisation and Data Driver Testing in Postman
+===================================================
+
+We will use "Books API" to understand parameterization and perform DDT. This API allows us to reserve a book.
+
+URL--->https://simple-books-api.glitch.me
+
+End Points for different requests:
+----------------------------------
+-To register your API client by creating token using POST request--->/api-clients/<---Sent one time to get access token to perform API authentication
+---Body of "CreateToken" request
+{
+    "clientName": "Day7Training",//---->Random name
+    "clientEmail": "Day7Training@gmail.com"//---->Random email id
+}
+
+---Sending it creates a token as below that is valid for 7 days. This token needs to be entered as bearer token authorization in all modification and
+user specific requests like POST, PATCH, GET order/s etc.
+{
+    "accessToken": "c7946d70491e3341777f536dfdb8672281574f63974af6fa3785b6a6cebbddb0"
+}
+
+-To GET status of API--->/status
+-To GET list of books--->/books
+-To GET a single book--->/books/:bookId<---Here, ":" is not part of the end point syntax. It is there to symbolize that bookId is a parameter.
+-To submit an order (POST)--->/orders<---Requires beare token authentication and body containing bookID and customerName.
+---Response Body
+{
+    "created": true,
+    "orderId": "7futw5xeGX8e68kS_XKrb"//---->We will use this orderId while performing various requests in next steps
+}
+
+
+-To GET all orders--->/orders<----Requires authentication
+-To GET an order--->/orders/:orderId<----Requires authentication
+-To update an order (PATCH)--->/orders/:orderId<---Requires authentication
+---Request body
+{
+    "customerName":"Ankit"//--->Changing the customer name in order details
+}
+-To DELETE an order--->/orders/:orderId<---Requires authentication. After sending this request "orderId": "7futw5xeGX8e68kS_XKrb" will not return any data
+as the order linked with this Id is now deleted.
+
+Note: We can also define the authorization token at collection level but then we have to select "No Auth" in autorization tabs of each request in collection
+where we don't need the token, since by default selection in authorization tab is "Inherit auth from Parent".
+
+
+Chaining and Data driven testing
+----------------------------------
+Chaining procedure for different requests:
+POST--->(Capture Order ID)--->Display Order ie. GET request
+				  --->Update Order ie. PATCH request
+				  --->Delete Order ir. DELETE request
+
+Also, we will provide different data-sets while implementing the chaining process on those requests.
+
+Pre-requisites:
+---Data file in csv (comma separated values) or json format
+---Authorization token entry for each request
+
+
+DDT Process: (Day7BooksAPI-DataDriven)
+--------------------------------------
+
+1) We have to get "bookId" from data file. So, for that create a csv file (Book Data File.csv) in notepad. Data from this file will be provided to request
+at runtime.
+
+2) Change the body of POST request as below by providing the column names from csv file as id and customerName parameters
+{
+    "bookId":"{{BookID}}",
+    "customerName":"{{CustomerName}}"//BookID and CustomerName are column names from csv file
+}
+3) Next we will perform validations by entering Tests script for response status
+
+//Response status validation	
+pm.test("Status code is 201",()=>{
+    pm.response.to.have.status(201);
+});
+
+
+4) Also, we will store the orderId from response in environment variable "orderid_env" for use in later requests
+
+//Creating environment variable to store orderId data from response body
+var jsonData=JSON.parse(responseBody);
+pm.environment.set("orderid_env",jsonData.orderId);
+
+
+5) Now we will refer environment variable "orderid_env" to perform "GetAnOrder" request by adding the environment variable in URL as below:
+https://simple-books-api.glitch.me/orders/{{orderid_env}}
+
+6) Next we will perform some validations by adding Tests script for GetAnOrder request
+//Response status (Instead of typinf the code we have used the Snippets option to get the code for "Status Code: Code is 200" snippet)
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+//OrderID validation
+pm.test("Check orderID present in response id",()=>{
+    var jsonData=pm.response.json();
+    pm.expect(jsonData.id).to.eql(pm.environment.get("orderid_env"));
+});
+
+7) Similarly performing DELETEAnOrder request by using URL https://simple-books-api.glitch.me/orders/{{orderid_env}}
+
+
+8) And perform validations on status code by adding "Status Code: Code is 200" snippet and modifying it to match the response code of delete request ie. 204
+
+pm.test("Status code is 204", function () {
+    pm.response.to.have.status(204);
+});
+
+9) Deleting the environment variable "orderid_env"
+pm.environment.unset("orderid_env");
+
+10) Now, we will implement the csv file to fetch data for requests to run multiple iterations. For that we will run the collection and select csv data
+file created earlier ie. Book Data File.csv by clicking "Select File" in Data field of Runner window.
+Also, we need modify following fields depending to number of records in data file:
+--->Iterations (ie. Number of times you want the collection to run. It can be any number depending on the requirment but should be within the number of 
+data fields in csv file ie. 5 for Book Data File.csv)
+--->Delay (ie. wait duration between each request run. It's better to some delay like 2 ms or more depending upon the expected server response time)
+--->After selecting the csv file click the Preview button to check the different data values and alignment of data in csv file. There should not be any
+special/unwanted characters in any fields/datasets.
+--->Run the collection and check various test/validation status.
+
+
+Note:
++++++
+Similarly, we can create "Book Data File.json" file by converting the csv file to json using an online csv to json convertor tool and run the collection
+selecting the json file this time.

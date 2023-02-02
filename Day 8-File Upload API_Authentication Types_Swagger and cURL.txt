@@ -1,0 +1,191 @@
+Upload file through API
+========================
+
+1) Download jar file for file upload (Download link for File Upload Rest API: https://tinyurl.com/bdhuh6xe)
+2) Place this jar file in a c drive folder
+3) Open cmd in that folder and run command "java -jar file-upload-RestAPI.jar". The jar file uses port 8080, so it showed an error to me since 8080 was in use
+by Jenkins. As there is no way to change modify this jar file, I had to change the port number in jenkins.exe.config file to 8090 and then restarting 
+jenkins servers through cmd command: C:\Program Files\Jenkins>jenkins.exe restart.
+Refer "https://www.edureka.co/community/71168/how-to-change-the-default-jenkins-port-in-windows" in case of any issues while make 8080 available.
+Make sure to change it back after the completion of file upload API part.
+Once port 8080 is available re-run command java -jar file-upload-RestAPI.jar as below and verify the successful startup of application.
+
+C:\Users\hp\Desktop\API Testing Reference>java -jar file-upload-RestAPI.jar
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::        (v2.2.1.RELEASE)
+
+2023-01-30 09:14:17.601  INFO 21480 --- [           main] c.example.filedemo.FileDemoApplication   : Starting FileDemoApplication v0.0.1-SNAPSHOT on ANKIT-PC with PID 21480 (C:\Users\hp\Desktop\API Testing Reference\file-upload-RestAPI.jar started by hp in C:\Users\hp\Desktop\API Testing Reference)
+2023-01-30 09:14:17.605  INFO 21480 --- [           main] c.example.filedemo.FileDemoApplication   : No active profile set, falling back to default profiles: default
+2023-01-30 09:14:18.719  INFO 21480 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+2023-01-30 09:14:18.728  INFO 21480 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-01-30 09:14:18.729  INFO 21480 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.27]
+2023-01-30 09:14:18.807  INFO 21480 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-01-30 09:14:18.807  INFO 21480 --- [           main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 1108 ms
+2023-01-30 09:14:18.990  INFO 21480 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2023-01-30 09:14:19.100  INFO 21480 --- [           main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2023-01-30 09:14:19.217  INFO 21480 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+2023-01-30 09:14:19.223  INFO 21480 --- [           main] c.example.filedemo.FileDemoApplication   : Started FileDemoApplication in 2.111 seconds (JVM running for 2.529)
+
+4) Leave the cmd window open to keep the application running in backend and access localhost:8080 on browser to open "Spring Boot File Upload / Download
+Rest API Example" application.
+5) Identify the URLs for different requests like
+-To upload single file (POST request): http://localhost:8080/uploadFile
+-To upload multiple files (POST request): http://localhost:8080/uploadMultipleFiles
+
+6) Create new collection "Day8FileUpload" and add POST request "SingleFileUpload" to upload single file using the single file upload URL.
+7) To provide a file to upload select Body>form-data>Enter name of file in Key>select "File" in dropdown next to Key field to get "Select Files" button in
+value field>Select the file to upload in value field>Save>Send request
+Note: If we select the other option 'Text' in dropdown we need to provide the complete path of the file we want to upload in 'Value' field
+Response Body after successful run of request:
+{
+    "fileName": "Day 1-API Testing Introduction.txt",
+    "fileDownloadUri": "http://localhost:8080/downloadFile/Day%201-API%20Testing%20Introduction.txt",
+    "fileType": "text/plain",
+    "size": 7323
+}
+
+8) Similarly, we can add another POST request to upload multiple files. Request "MultipleFilesUpload" has been created using multiple files upload URL and
+in Request Body>form-data>enter "files" in Key field and select "File" from dropdown>Select multiple files to upload>Save>Send
+Response Body after successful run of this request:
+[
+    {
+        "fileName": "Day 2-Postman-Environment setup and types of HTTP Requests.txt",
+        "fileDownloadUri": "http://localhost:8080/downloadFile/Day%202-Postman-Environment%20setup%20and%20types%20of%20HTTP%20Requests.txt",
+        "fileType": "text/plain",
+        "size": 5732
+    },
+    {
+        "fileName": "Day 3-How to create Own APIs in JSON.txt",
+        "fileDownloadUri": "http://localhost:8080/downloadFile/Day%203-How%20to%20create%20Own%20APIs%20in%20JSON.txt",
+        "fileType": "text/plain",
+        "size": 11599
+    }
+]
+
+Note: Here, using the URL provide in "fileDownloadUri" field, we can download the file as well.
+
+We will do validations on those response body attributes later.
+
+Note:Since we are running this API on localhost, it will automatically create a new folder "uploads" in "C:\" to store all the uploaded files ie. C:\uploads.
+Validating files in uploads folder falls under UI testing and we do not perform that validation as part of API testing.
+
+
+
+Authentication Types
+====================
+In any Postman request>Authorization Tab>Type dropdown shows all kinds of authorization types and we can use them according to the types supported by the
+API under test.
+
+A collection "Day8Authentications" has been created in Postman and respective authectication types are implmented in different GET requests mentioned as eg.
+in each type below:
+
+1) No Auth---->No authentication needed.
+
+2) API Key---->When there is requirement to generate an API key we use this authorization type. eg. "APIKeyAuth_openweatherapp" request.
+For this I had to create an account on api.openweathermap.org (Username: ankit210689, Password: Sandiego1$). The generated API key will be used in API Key
+authorization as value for Key "apiid". Also, select "Query Params" in 'Add to' field that will make it applicable for all URL for different openweathermap
+APIs. Next, we had to provide values to other parameter keys in 'Params' tab as suggested on the website for respective API.
+Note: For new accounts the API key will take a couple of hours to activate, so will validate this request later.
+Update: It is working now.
+
+3) Bearer token---->Need to generate a bearer token to access API. eg. "BearerTokenAuth_Github" request.
+To generate bearer token login to Github>Profile>Settings>Developer Settings>Personal Access tokens. This will generate a github token
+(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) for 30 days that will be used as bearer token to access my repositories on github through URL
+https://api.github.com/user/repos
+
+4) Basic Auth---->User name and password combination is required to access API. No encryption, so less secured. eg. "BasicAuthentication" request
+Also, implemented another request "BasicAuth" for a different webpage that fetches the whole HTML code of result page in response body.
+
+5) Digest Auth---->User name and password combination is required to access API. Encrypted data transmission, so more secured. eg. "DigestAuth" request
+
+6) OAuth 1.0---->Third party authentication tools are required. More complex and secured. Older version.
+
+7) OAuth 2.0---->Third party authentication tools are required. Never version of OAuth 1.0 and in use currently by organizations. eg. "OAuth 2.0_GithubApp"
+folder has been created to implement OAuth 2.0 authorization.
+
+Pre-requisites for creating OAuth 2.0 authorization:
+-----------------------------------------------------
+---Register an app or use a pre-registered app in Github. To register an OAuth app in our github profile, login Github>Profile>Settings>Developer Settings
+>OAuth Apps>New OAuthApplication>Enter App Name, URL and authorization callback URL>Click Register Application (Application Name: APITestingTraining) 
+---Next we need to get the client ID of this OAuth app to pass as parameter in URL. (Client ID: c641ef8d3b46f6b6827c)
+---Now click "Generate a new client secret" to get client secrets for this app. (Client Secret: f4fda86795913c6854d9aba561f35832f75ed383)
+---Check other details like Application name, hompage URL and Authorization callback URL and click Update Application to finish.
+
+Steps in Postman:
+-----------------
+---Make a note of application name, URL, ClientID and secret ID that will be used in out requests. This concludes the pre-requisites part.
+---Created a new folder "OAuth 2.0_GithubApp" in collection "Day8Authentications" to create the next 3 requests for OAuth 2.0
+---Now OAuth 2.0 authentication in Postman will be implmented in 3 different steps:
+
+Step 1: Request a user's Github identity-->Send a GET request to authorize access to github by passing the client ID in URL. Sending this request in Postman
+will give us response containing HTML source code of the result page. But we need value for "code" attribute to implement in Step 2.
+To get that, copy URL https://github.com/login/oauth/authorize?client_id=c641ef8d3b46f6b6827c and run on browser>Accept the allow access message on Github>
+Upon reroutinh since the app/server is not live/running we will get an error that page cannot be reached but we have to copy the current URL
+(http://localhost:3000/callback?code=ab0e950c67643cc59a34). Here, we will use the code part in Step 2 (code=ab0e950c67643cc59a34).
+
+Step 2: Users are redirected back to your site by Github--->Send a POST request by providing 3 parameter values in URL ie. client_id, client_secret and code
+This will provide an access token as response that will be used in step 3 (access_token=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&scope=&token_type=bearer).
+Note: code value remains valid for a certain amount of time, so use it immediately after getting that value at the completion of step 1. If it is expired, 
+rerun the url on browser to get a new code.
+
+Step 3: Use the access token to access the API-List Specific User. In Authorization tab, select Type as OAuth 2.0 and enter access_token from step 2.
+Similarly, we can implement access_token to get list of all users (Request "Use the access token to access the API-List All Users")
+
+8) Hawk Authentication
+9) AWS Signature
+10) NTLM Authentication
+11) Akamai Edgegrid
+8-11 are more advanced API authentication types provided by respective vendors and it is very difficult to find an API supporting those authntication types
+outside of organization environments as they are made exclusively for each API.
+
+
+Swagger and cURL
+=================
+
+Swagger: A tool used to create interactive documentation
+--------
+-Notepad, MS Word, PDF etc. document creating tools create static documents. But to demonstrate how an API would work, its pre-requisites, the request body,
+response body etc. the developer of an API creates swagger document.
+-It will not be hardcoded document which can be sent over as an attachment. Instead a web-link to a swagger document will be provided by the developer. 
+-As a swagger is connected to server/s that the API will later use, we can perform some kind of testing to validate how various request in swagger
+are interacting with the server.
+-Swagger example websites:
+
+https://fakerestapi.azurewebsites.net/index.html
+https://petstore.swagger.io/
+https://httpbin.org/#/
+
+Here, we can try out various requests and execute them to check the server response.
+-Before getting the real API for testing we can perform testing on swagger and use the details in swagger to plan actual API testing.
+
+Swagger vs Postman
+-------------------
+-Swagger is used to explore the API but postman is used for actual testing of the API.
+-We can't add any validations/tests in swagger which we can in Postman.
+-Swagger has very limited functionaly and can only be used to check the server response of each request.
+-Also, we can't save the results of testing and generate reports in swagger which we can in Postman.
+
+
+
+cURL: stands for client-URL
+----
+-Swagger document contains cURL or executing a request in swagger will provide us the cURL for that request.
+-A cURL holds all the required values like URL, paramters, body etc. in one continuous locator text as below:
+curl -X GET "https://fakerestapi.azurewebsites.net/api/v1/Activities" -H  "accept: text/plain; v=1.0"
+-cURL can be used to create requests in Postman. To do that copy the cURL>In Postman click Import>Select "Raw Text">Paste copied curl in "Paste Raw text"
+field>Click Continue>Import. This will create the request that we can send to check response and we can also save it in an existing collection.
+
+
+Creating report after completion of testing a collection
+--------------------------------------------------------
+Click the 3 dots (...) next to the completed collection>Click "View documentation"> This page will show all the data related to testing of various requests
+in this collection and it can be generated in various formats like HTTP, cURL, C#, Java etc. 
+This report can be published using "Publish" button on the top right corner of postman window. It will open a webpage and the url of this webpage can be
+shared with anyone to check the testing report.
+(https://web.postman.co/documentation/25206236-ef61d01d-5033-4b1a-b5bd-569b01db4d9f/publish?workspaceId=571f6eee-3416-41cc-b4bd-861128f833b9#content)

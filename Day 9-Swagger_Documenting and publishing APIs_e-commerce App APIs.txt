@@ -1,0 +1,339 @@
+Petstore APIs
+==============
+Supports JSON and XML format for response.
+https://petstore.swagger.io/
+9 different models of APIs are provided in this swagger that have different kind of requests. But only the first 3 are freely accessible for testing.
+We will work on "user" model for now and this model will take request in JSON format and response can be in xml or json format but we will select json in
+this case.
+
+Importing APIs from user model of Petstore Swagger to Postman in JSON format
+-----------------------------------------------------------------------------
+-Expand "Create user" API field>Select Paramter Content type (JSON) and Response Content type (JSON)>Try it out>Edit values for all parameters in body>Execute>
+Copy cURL>Go to Postman>Import>Raw text>Paste cURL and continue>Click Import button>Save in collection "Day9Petstore"
+-Similarly create 3 more request by importing cURLs of Get User, Update User and Delete User By Name.
+-The request creation process becomes easier when a swagger a provided as we can import the cURL directly to create our requests. Otherwise we have to
+manually enter data for each component like Request type, URL, Body, response format etc.
+-Although, the request can be created by importing cURL we still have to explicitly define pre-request script, tests and make modification to body if we are
+going to use variables for chaining.
+
+All the 4 imported APIs from user model are saved in collection "Day9Petstore-JSON-UserModel".
+Now, we will modify each request to implement chaining as below:
+
+1) Create User
+---------------
+Modifications:
+++++++++++++++
+i) Pre-request Script creation to generate body values at runtime:
+
+const randomnum=Math.floor((Math.random()*100+1));//To generate a random number
+var randomstr="john"+Math.random().toString(36).substring(2);//To generate a random string
+
+//Creating variables to create values at runtime in request body
+pm.environment.set("id",randomnum);
+pm.collectionVariables.set("username",randomstr);
+pm.collectionVariables.set("firstname",randomstr);
+pm.collectionVariables.set("lastname",randomstr);
+pm.collectionVariables.set("email",randomstr+"gmail.com");
+pm.collectionVariables.set("password",randomstr);
+pm.collectionVariables.set("phone","111111111");
+pm.collectionVariables.set("userstatus",0);
+
+//console.log(randomstr); //TO print the random number generated in console, not required.
+
+
+ii) Changing hard codes values for parameters in body to generate values at runtime through variables
+
+Request body from cURL:
+{
+  "id": 1010,
+  "username": "john",
+  "firstName": "xyz",
+  "lastName": "string",
+  "email": "abc@gmail.com",
+  "password": "string",
+  "phone": "1234567890",
+  "userStatus": 0
+}
+
+Request body after implementing variables to generate data dynamically through pre-request contents:
+{
+  "id": {{id}},
+  "username": "{{username}}",
+  "firstName": "{{firstname}}",
+  "lastName": "{{lastname}}",
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "phone": "{{phone}}",
+  "userStatus": {{userstatus}}
+}
+
+iii) Tests Script:
+pm.test("Check status code",function(){
+    pm.response.to.have.status(200);
+})
+
+iv) Also, if we imported the cURL for XML response but now need response in JSON we have to modify value of "accept" parameter to "application/json" in
+"Headers" tab.
+
+v) Run the request and if passed check the creation of variables at collection and environment levels as defined in pre-request script.
+
+
+2) Get User By Name
+--------------------
+Modifications:
+++++++++++++++
+
+i) Change the URL to take name of the user value from collection variable.
+https://petstore.swagger.io/v2/user/{{firstname}}
+
+ii) We don't need any body or pre-request script as this is only a get request for previous post request.
+
+iii) Tests script to check the status code
+pm.test("Check status code",function(){
+    pm.response.to.have.status(200);
+})
+
+
+3) Update User By Name
+-----------------------
+Modifications:
+++++++++++++++
+
+i) Change the URL to take name of the user value from collection variable.
+https://petstore.swagger.io/v2/user/{{firstname}}
+
+ii) Change the body to be similar to Create user body.
+Before
+{
+  "id": 1010,
+  "username": "john_updated",
+  "firstName": "John",
+  "lastName": "Dylan",
+  "email": "updatedemail@gmail.com",
+  "password": "updated",
+  "phone": "1234556778",
+  "userStatus": 0
+}
+
+After
+{
+  "id": {{id}},
+  "username": "{{username}}",
+  "firstName": "{{firstname}}",
+  "lastName": "{{lastname}}",
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "phone": "{{phone}}",
+  "userStatus": {{userstatus}}
+}
+
+iii) Data to be modified will be created in pre-request script. Here, we are modifying email and phone.
+
+var randomstr="john"+Math.random().toString(36).substring(2);
+//Updating email and phone
+pm.collectionVariables.set("email",randomstr+"@gmail.com");
+pm.collectionVariables.set("phone","222222222");
+
+iv) Tests script to check the status code
+pm.test("Check status code",function(){
+    pm.response.to.have.status(200);
+})
+
+4) Delete user By Name
+-----------------------
+Modifications:
+++++++++++++++
+
+i) Change URL to take name from collection variable {{firstname}
+https://petstore.swagger.io/v2/user/{{firstname}}
+
+ii) No body or pre-request script is required.
+
+iii) Tests script to check status code and deleting all variables created in first request.
+
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+//Deleting both environment and collection variables
+pm.environment.unset("id");
+pm.collectionVariables.unset("username");
+pm.collectionVariables.unset("firstname");
+pm.collectionVariables.unset("lastname");
+pm.collectionVariables.unset("email");
+pm.collectionVariables.unset("password");
+pm.collectionVariables.unset("phone");
+pm.collectionVariables.unset("userstatus");
+
+-After successful execution of this request check that all the variables (both environment and collection) are now deleted.
+
+-Once all the requests are running successfully run the collection to complete testing of user module.
+
+-After succesful run of the collection, generate reports using "Export Results" button available on top right corner of run window>Check name and Select
+location> Save. "Day9PetStore-JSON-UserModel.postman_test_run.json" was saved in API-Testing reference folder.
+This report will be in json format (not easily readable outside Pastman), so later we will understand how to generate these reports in HTML format.
+
+-We can also create the documentation of our collection and publish it. To do this open collection level menu>Select "View Documentation">Click "Publish">
+On the webpage that opens select any modification you want to make in Content, URL or Styling (not mandatory) and click "Publish" to get a publicly
+accessible URL of your collection that can be shared with anyone (https://documenter.getpostman.com/view/25206236/2s935iumwQ).
+This published document contains cURLs for various requests and we can import those requests in Postman to create new requests.
+The whole collection can be imported too using "Run in Postman" button on top right corner of the webpage and a copy of it can be created in postman to
+perform modifications.
+
+-This published document is only available after successful completion of testing at least once.
+
+-Before testing we have to use swagger to get all the reference points to implement in our requests and testing.
+
+
+Importing APIs from pet model of Petstore Swagger to Postman in XML format
+----------------------------------------------------------------------------
+
+We will import 4 APIs from pet model ie. Add new pet, Find pet by pet id, Update existing pet and Delete a Pet.
+All the steps to follow remains the same, except Select Paramter Content type (XML) and Response Content type (XML) for all 4 requests.
+Once the cURL are imported and requests are created in collection "Day9Petstore-XML-PetModel" we will modify the contents of requests as below:
+
+1) Add new pet
+--------------
+Modifications:
+++++++++++++++
+i) Name for Category ie. Dog and dog name "Jimmy" has been entered. 
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Pet>
+	<id>0</id>
+	<Category>
+		<id>0</id>
+		<name>Dog</name>
+	</Category>
+	<name>Jimmy</name>
+	<photoUrls>
+		<photoUrl>string</photoUrl>
+	</photoUrls>
+	<tags>
+		<Tag>
+			<id>0</id>
+			<name>tagname</name>
+		</Tag>
+	</tags>
+	<status>available</status>
+</Pet>
+
+ii) Tests script- Since we can't perform validation on XML data in postman, we have to convert xml data to json before performing any validations or
+storing values in a variable.
+//TO check status code
+pm.test("Check status code",function(){
+    pm.response.to.have.status(200);
+});
+//To validate pet name value is Jimmy
+pm.test("Check pet name",function(){
+    var jsonData=xml2Json(responseBody);//convert xml to json data before comparison
+    pm.expect(jsonData.Pet.name).to.eq("Jimmy");
+});
+
+//capture ID as collection variable
+var jsonData=xml2Json(responseBody);//convert xml to json data before assigning value to variable
+pm.collectionVariables.set("petid",jsonData.Pet.id)//Pet.id is the json path in jsonData variable
+
+Note: This xml is simple enough to find the required path of values to compare but sometimes in case of bigger API response body in xml format is not
+interpretable easily. In that we can use online tools to convert xml to json and that json data can be copied to "jsonpathfinder" we used on day 1,
+to identify the path of values to compare in json format.
+
+
+2) Find pet by id
+------------------
+Modifications:
+++++++++++++++
+i) URL has been modified to fetch pet id from collection variable created in first request.
+https://petstore.swagger.io/v2/pet/{{petid}}
+
+ii) Tests script (Check status code and validate the value in Pet.id field to be same as value stored in collection variable "petid")
+pm.test("Check status code",function(){
+    pm.response.to.have.status(200);
+});
+
+pm.test("Check Pet ID", function(){
+    var jsonData=xml2json(responseBody);//Convert XML to Json data
+    pm.expect(jsonData.Pet.id).to.eq(pm.collectionVariables.get("petid"));
+});
+
+3) Update exiting pet details
+------------------------------
+Modifications:
+++++++++++++++
+i) Body
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Pet>
+	<id>{{petid}}</id>//It will take value from "petid" variable
+	<Category>
+		<id>0</id>
+		<name>Dog</name>
+	</Category>
+	<name>Tommy</name>//Name has been updated from Jimmy to Tommy
+	<photoUrls>
+		<photoUrl>string</photoUrl>
+	</photoUrls>
+	<tags>
+		<Tag>
+			<id>0</id>
+			<name>string</name>
+		</Tag>
+	</tags>
+	<status>available</status>
+</Pet>
+
+ii) Tests script (Check status code and validate the value in Pet.name field)
+pm.test("Check the status",function(){
+    pm.response.to.have.status(200);
+});
+
+pm.test("Check pet name",function(){
+    var jsonData=xml2Json(responseBody);
+    pm.expect(jsonData.Pet.name).to.eq("Tommy");
+})
+
+4) Delete a pet
+---------------
+Modifications:
+++++++++++++++
+i) URL will be modified to get value from petid variable
+https://petstore.swagger.io/v2/pet/{{petid}}
+
+ii) Tests Script (CHeck the status code and delete the collection variable)
+pm.test("Check status code", function(){
+    pm.response.to.have.status(200);
+});
+pm.collectionVariables.unset("petid");
+
+
+Run the collection and publish it (https://documenter.getpostman.com/view/25206236/2s935iv6p8)
+
+
+
+E-commerce App APIs (Opencart)
+==============================
+-Access Opencart (https://www.opencart.com/)>View Demo>2 Applications are provided: Store Front and Administration> Open Administration application
+for backend activities>Enter Username and Password: demo
+-On successful login click System on left side menu pane on homepage>Users>User Groups>Administrator. Here, we will create a user with privileges to
+access the APIs but since there is no option to access APIs here we need to download Opercart application on our local system and run it locally to
+access and test the APIs of this web application. Follow document hosted on "https://drive.google.com/file/d/1XTdeE37rTcY9LxbdoylMc_QdMAy8xj1K/view"
+or refer the local copy in API Testing reference folder.
+Note: This application can also be used to perform web testing using selenium or other tools.
+-Once the installation is successful login the administration app using the credentials created during installation (admin, admin).
+-When in Dashboard, click System in navigation menu>Users>API. Here, we need to create a new user to access API by clicking add new (+) button>Entered API
+name "demo">Generate API key (UG0dkiZpN3LGygGXRPUjdF35lP6ggLQHoYjPTYPBnQSeAYKGxPalz0uPWLwI1ALEDFl8DRD5gR0jsm3nkH5dlJCNOARdI2em4BM3p7jUfauTLirWXwqzNnEuMwvj4ICQsgLpuJagmobWumtaPCti2nwqmkDisDr3PBH8q3mBX8SwsYDfZXOp6Qz5zbzeDiJxBlB7IGPq2kLHgQz3FnFy7WB5N3Dp1ujNOEn74Y1bdeYSNRhTxE6AfX1ANOkVTKod)
+>Change the status to Enabled>Move to IP addresses tab>Add new (+) button>Enter your system's IP address (cmd>ipconfig, 192.168.1.64)>Save> Note the API
+username "demo" is added to API list.
+We will use this API user to perform testing tomorrow.
+
+Also, we will access opercart API documentation from https://docs.opencart.com/en-gb/system/users/api/
+Note: This is static document and no swagger is not yet available for opencart. Also, the pre-requisites mentioned in this document to create the API user
+(demo) is already completed.
+
+-DB Access URL: http://localhost/phpmyadmin/---->DB name: openshop
+-Frontend application URL: http://localhost/opencart/upload/
+-Backend Application URL: http://localhost/opencart/upload/admin/
+-demo user, API Key: UG0dkiZpN3LGygGXRPUjdF35lP6ggLQHoYjPTYPBnQSeAYKGxPalz0uPWLwI1ALEDFl8DRD5gR0jsm3nkH5dlJCNOARdI2em4BM3p7jUfauTLirWXwqzNnEuMwvj4ICQsgLpuJagmobWumtaPCti2nwqmkDisDr3PBH8q3mBX8SwsYDfZXOp6Qz5zbzeDiJxBlB7IGPq2kLHgQz3FnFy7WB5N3Dp1ujNOEn74Y1bdeYSNRhTxE6AfX1ANOkVTKod
+-Opercart API documentation: https://docs.opencart.com/en-gb/system/users/api/
+
+
+

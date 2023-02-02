@@ -1,0 +1,348 @@
+How to create own APIs and JSON (Java Script Object Notation)
+=============================================================
+
+Pre-reqisites to create own APIs
+---------------------------------
+-3 Softwares are required:
+
+1) NodeJS--->Download link: https://nodejs.org/en/download/. Run the .msi file to install (don't change anything till finish)
+
+2) NPM (node package manager)--->Comes automatically with NodeJS (note the npm package in package list while installing)
+----Also, we have to check the enviornment variables>Path>For "C:\Program Files\nodejs\" and "C:\Program Files\nodejs\node_modules" variables. If they both
+are created then fine else create them manually and save (for me only one "C:\Program Files\nodejs\" was created by itself after installing NodeJs, so had to 
+create "C:\Program Files\nodejs\node_modules" manually.
+
+To validate successful istall of NodeJS, open CMD>type "node --version" to get the installed version # of NodeJS.
+C:\Users\hp>node --version (or) node -v
+v18.13.0
+
+Similarly, to validate successful install of npm, in CMD type "npm --version" to get the installed version of npm.
+C:\Users\hp>npm --version (or) npm -v
+8.19.3
+ 
+3) json Server--->Will be installed with the help of NPM
+To install json server after installing NodeJS (and npm), type command "npm install -g json-server" in cmd.
+
+C:\Users\hp>npm install -g json-server
+
+added 109 packages, and audited 110 packages in 12s
+
+10 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm notice
+npm notice New major version of npm available! 8.19.3 -> 9.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v9.2.0
+npm notice Run npm install -g npm@9.2.0 to update!
+npm notice
+
+This concludes the environment setup for creating own APIs.
+
+
+Creating own APIs:
+------------------
+-Create a json file (students.json which contains data from users.json file found on https://zetcode.com/javascript/jsonserver/) and save in a local folder.
+-Access the file from cmd and run the json file on server as below:
+
+C:\Users\hp\Desktop\API Testing Reference>json-server students.json
+
+  \{^_^}/ hi!
+
+  Loading students.json
+  Done
+
+  Resources
+  http://localhost:3000/students
+
+  Home
+  http://localhost:3000
+
+  Type s + enter at any time to create a snapshot of the database
+
+
+-Successful run will give resources and home URLs, but if there is any error in the json file formatting, in place of the resources and home URL
+it will show an error.
+
+-Closing this cmd window will stop the server, so to keep it running in backend just minimize the cmd window.
+
+-To know if the API is running we need to send the URL provided as resources in cmd ie. http://localhost:3000/students. It will show the list of students
+in the database ie. json file. Also, it will continuously show logs in cmd for successful data access like "GET /students 200 1435.257 ms - 558".
+
+-To run a different API, just store the corresponding json file in local folder and after starting the server in cmd, run the url on browser.
+
+-Since, this API is running on the local machine the URL has localhost.
+
+
+Running own API on Postman tool
+---------------------------------
+-Keep the server running (Do not close cmd window)
+
+-Test Cases for testing own API students.json on Postman:
+
+TCID | Title/Description | URI | HTTP Request | Authentication | Request Payload | Response Payload | Status Code | Validations
+1 | Get single student data| http://localhost:3000/students/1 | Get | NA | NA | {Data from response} | 200 |
+2 | Get all students data| http://localhost:3000/students| Get| NA | NA | {Data from response} | 200 |
+3 | Create new student | http://localhost:3000/students | Post | NA | {New student data sent as request | {Data from response | 201 |
+4 | Update student | http://localhost:3000/students/6 | Put | NA | {Data to be updated sent as request | {Data from response} | 200 |
+5 | Partially update student | http://localhost:3000/students/6 | Patch | {Data to be updated sent as request | {Data from response} | 200 |
+6 | Delete student | http://localhost:3000/students/6 | Delete | NA | NA | {} | 200
+
+
+TCID 1_Get Single Request Data (GET request)
+--------------------------------------------
+
+URL:
+http://localhost:3000/students/1
+
+Response Payload:
+{
+    "id": 1,
+    "first_name": "Robert",
+    "last_name": "Schwartz",
+    "email": "rob23@gmail.com"
+}
+
+Status COde: 200 OK
+
+
+TCID 2_Get all students data (GET request)
+-------------------------------------------
+URL:
+http://localhost:3000/students
+
+Response Payload:
+[
+    {
+        "id": 1,
+        "first_name": "Robert",
+        "last_name": "Schwartz",
+        "email": "rob23@gmail.com"
+    },
+    {
+        "id": 2,
+        "first_name": "Lucy",
+        "last_name": "Ballmer",
+        "email": "lucyb56@gmail.com"
+    },
+    {
+        "id": 3,
+        "first_name": "Anna",
+        "last_name": "Smith",
+        "email": "annasmith23@gmail.com"
+    },
+    {
+        "id": 4,
+        "first_name": "Robert",
+        "last_name": "Brown",
+        "email": "bobbrown432@yahoo.com"
+    },
+    {
+        "id": 5,
+        "first_name": "Roger",
+        "last_name": "Bacon",
+        "email": "rogerbacon12@yahoo.com"
+    }
+]
+
+Status Code: 200 OK
+
+TCID 3_Create new student (POST request)
+-----------------------------------------
+
+URL:
+http://localhost:3000/students
+
+Request Payload: (ID needn't be specified in request payload, as it will auto-append ID data)
+
+{
+    "first_name": "Ankit",
+    "last_name": "Pandey",
+    "email": "ap21@gmail.com"
+}
+
+Response Payload:
+{
+     "first_name": "Ankit",
+    "last_name": "Pandey",
+    "email": "ap21@gmail.com",
+    "id": 6
+}
+
+Status Code: 201 Created
+
+TCID 4_Update student (PUT request)
+------------------------------------
+
+URL:
+http://localhost:3000/students/6
+
+Request Payload: (All the fields need to be mentioned in PUT request even if we are not updating all of them. But, i	n case of PATCH request we can provide only
+the field that needs to be updated).
+
+{
+    "id": 6,
+    "first_name": "Ankit",
+    "last_name": "Pandey",
+    "email": "ap27@gmail.com"
+}
+
+Response Payload:
+
+{
+    "id": 6,
+    "first_name": "Ankit",
+    "last_name": "Pandey",
+    "email": "ap27@gmail.com"
+}
+Status Code: 200 OK
+
+
+TCID 5_Partially update student (PATCH request)
+-----------------------------------------------
+
+URL: http://localhost:3000/students/6
+
+Request Payload:
+
+{
+    "email": "rob23@gmail.com"
+}
+
+Response Payload:
+
+{
+    "first_name": "Ankit",
+    "last_name": "Pandey",
+    "email": "rob23@gmail.com",
+    "id": 6
+}
+
+Status Code: 200 OK
+
+
+TCID 6_Delete Student (DELETE request)
+--------------------------------------
+
+URL: http://localhost:3000/students
+
+Response Payload:
+
+{}
+
+Status Code: 200 OK
+
+
+Output for each test case request in cmd/console window:
+------------------------------------------------
+GET /students/1 200 24.352 ms - 96
+GET /students 200 27.550 ms - 558
+POST /students 201 134.076 ms - 92
+PUT /students/6 200 17.020 ms - 92
+PATCH /students/6 200 28.312 ms - 93
+DELETE /students/6 200 29.517 ms - 2
+
+
+Test Validations (Details in Day 4 file)
+----------------
+We can validate following parameters in response data to validate a test result:
+---Body
+---Cookies
+---Headers
+---Status Code
+---Time
+---Size
+
+To perform these validation we need to apply Assertions.
+Postman provides some assertions that we can implements for validations. But to uderstand assertions we need to understand Json file format/data first.
+
+
+JSON (JavaScript Object Notation)
+---------------------------------
+-Json is a data format used in data communication between client and server (XML format is used as well but between JSON and XML, json is preferred. XML is
+genrally used in SOAP services but most REST services use JSON).
+-Both JSON and XML create light weighted data that is easier and quicker to transmit and provide encryption and decryption options for data security.
+-Still JSON format is preferred over XML because
+--Json is easier to read and write as compared to XML
+--It supports array which XML doesn't
+--JSON files are more human-readable than XML
+
+-The only advantage that XML have over JSON is XML supports multiple data types as text, number, images, charts, graphs etc., but JSON only supports text
+and number data types
+
+
+Json ppt for reference-https://www.slideshare.net/pavan5780/json-jsonpath
+----------------------
+
+-Json is derived from JavaScript, like XPath is derived from XML
+-Json file name extension is .json
+-Json internet media type is application/json
+-Json data types: Number (must be int or float), String, Boolean, Null, Object (contains multiple values), Array
+eg. String- { "name": "John"}
+Number- { "age": 30}
+Object- {"employee":{ "name":"John", "age": 30, "city": "New York" }
+Array- {"employees":["John","Anna","Peter"]}---This is an example of json array containing primitive data types.
+Boolean-{"sale":true}
+Null-{"middlename":"null}
+
+-Json data is stored/presented in key:value pairs; keys are always included in "" (double quotes) but only string values should be in "".
+-Every key:value pair should be seprated by a comma (,)
+
+-An example of JSON file having multiple data types at once:
+{
+"firstname":"John",
+"middlename":null,
+"age":30;
+"phone":[12345,56789,145678],----->John having multiple phone numbers, so this information is defined as an array
+"status":true, 
+}
+
+
+Logic building Example: Creating multiple entries for one kind of entity like creating multiple students data in "students" object.
+-----------------------
+--First create an object {"students":} which will be used as an array of objects.
+--"students" object will have multiple student objects, so creating an array of objects for students ie. {"students":["student1","student2","student3"]}
+--Next each student object will have multiple key:value pairs for different information/data sets, ie. 
+
+{"students":[
+			{
+				"id":101,
+				"name":"John",
+				"grade":"A"
+			},
+			{
+				"id":102,
+				"name":"Anna",
+				"grade":"B"
+			},			{
+				"id":103,
+				"name":"Peter",
+				"grade":"C"
+			}
+		]
+}
+
+So, this how the structure of students object in json format will look like. This is an example of a json array holding multiple objects.
+
+
+JSON Path creation for validation:
+----------------------------------
+-Array index starts from 0
+
+So, "students[0].name" is the json path for first name field and it will return value 'John'
+Similary, "students[1].grade" will return 'B'
+and students[2].id----->103
+
+This is a simple json file example, so it was easier to find the Json path. However, in large json we can't find the json path easily using this method.
+So, in that case we can use following websites/web application to capture and validate JSON Path.
+
+https://jsonpathfinder.com/---Tool to generate json path
+
+Copy json file in left pane and in right pane it will automatically generate the data representation from JSON file. Find the
+required field in JSON file and click on it in right pane to get the JSON path for it in "Path" field at the top of right pane (ignore 'x'). It will
+help us while working with complex json files.
+
+https://jsonpath.com/---Tool to validate the generated json path
+
+-Once we have the correct json path we will apply some validations on the values it is returning while performing requests in Postman.
+

@@ -1,0 +1,93 @@
+Scripts
+========
+
+Types of Scripts:
+-----------------
+-Tests Script----Added in tests tab. Done yesterday.
+-Pre-request script-These scripts will execute before sending request.
+
+-Sequence of events:
+Pre-request Script---->Request---->Response---->Tests
+
+-Both kind of scripts can be created at 3 levels:
+--Collection level
+--Folder level
+--Request level
+
+-Overall sequence of execution for different scripts defined at different levels:
+
+Collection level pre-request script
+		|
+		 ---->Folder level pre-request script
+				|
+				---->Request level pre-request script------>Request------>Response------>Collection level test script script
+																			|
+																			---->Folder level test script
+																					|
+																					---->Request level test script
+
+
+Postman Variables
+==================
+What is Variable?---->Something that can store data.
+
+Why we need variable?----->To avoid redundancy and to reuse/refer common components in multiple requests.
+
+Where to create variables?------>Can be created at multiple levels like:
+--------------------------
+--Global---->Global Variables-Can be accessed everywhere ie. all collections and requests in the workspace---Created "url_global" as Global variable.
+
+--Collection----->Collection Variables-Accessible within collection ie. all requests in collection---"url_collect" created in "Day5Variables" collection.
+
+--Environment----->Environment Variables-Accessible to all collections but correct environment needs to be selected---"QA" environment created and
+"url_qa_env" variable created inside it. QA environment need to be selected from drop down on top right corner to implement this variable in requests. 
+
+--Local----->Local Variables-Created in pre-request script tab of a request and hence accessible only within the request it is created---Created "url_local"
+variable in GET request>pre-request script section. Local variable for each request will be created at runtime and remain inside the request it was created.
+JavaScript Code to create local variable: "pm.variables.set("url_local","https://reqres.in");".
+
+--Data----->Data Variables-Created in external files like .csv or .txt (used in Data Driver testing and will be taught later).
+
+Note: To access variables in requests we need to use "{{}}" in URL field.
+++++"
+
+We can also create global, collection and environment variables in pre-request script of a request. But we have to run the request for those
+collections to show up in their respective variables lists (ie. Global Variable list, Environment Variable list and Collection Variable list)
+
+-Global variable----Created "userid_global" variable in pre-request script of GET request using javascript "pm.globals.set("userid_global","2");"
+-Environment variable----Created "userid_qa_env" variable in QA enviornment > pre-request script of GET request. Please note that the correct environment
+needs to be selected from the top right corner before creating environment variable/s within a request. JS Code: "pm.environment.set("userid_qa_env","2");"
+-Collection Variable-----Created "userid_collect" variable in pre-request script of GET request. We have to run the request for this collection variable
+to show up in the collection variables list. JS Code: "pm.collectionVariables.set("userid_collect","2");"
+
+
+Printing the values assigned to each variable in console (We will use Tests script for it as we will get this info from response)
+--------------------------------------------------------
+console.log(pm.globals.get("userid_global"));
+console.log(pm.environment.get("userid_qa_env"));
+console.log(pm.collectionVariables.get("userid_collect"));
+console.log(pm.variables.get("url_local"));
+
+Console Output:
++++++++++++++++ 
+2
+2
+2
+https://reqres.in
+
+
+Un-setting/Removing Variables using script
+------------------------------------------
+
+We need to create this script in "Tests" script as we need to delete the variable after use. After running the request with an unset script check the list
+of respective variables to verify the deleted/unset variable no more exists in their respective list.
+
+-To unset Global Variable: pm.globals.unset("userid_global");<----We just need to provide the variable name to unset. No value is required.
+
+-To unset Environment Variable: pm.environment.unset("userid_qa_env");
+
+-To unset Collection Variable: pm.collectionVariables.unset("userid_collect");
+
+
+
+So, we have used "set", "get" and "unset" methods for different operations on variables.

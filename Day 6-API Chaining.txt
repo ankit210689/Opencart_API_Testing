@@ -1,0 +1,68 @@
+Chaining of APIs
+=================
+The process of using response from one API as request for another API is called Chaining.
+ie. Request 1---->API 1----->Response 1 (part of this response will be used as Request 2)------->API 2----->Response 2
+
+Here, we will save the response as variables and use those variables in next requests.
+
+Chaining in Local API
+---------------------
+-Created a new collection "Day6Chaining" with Post, Get and Delete requests for 'Local API' students.json (copied Day3TestCasesCollection collection and
+deleted other requests keeping only post, get and delete requests in collection)
+-Keep the sequence of requests as 1. Post, 2. Get and 3. Delete, ie. add a student, get the added student, delete the added student.
+-In Post request>Tests tab create a variable to store "id" value of the new student entry. It will be used as input for post and delete requests.
+--First we will assign the response data to a variable jsonData using parse method of JSON class---->"var jsonData=JSON.parse(responseBody);". Here,
+"responseBody" is a keyword and "jsonData" is a variable.
+--Next we will create environment variable "id" at runtime---->"pm.environment.set ("id",jsonData.id);"
+-Now in GET request>instead of hard coding the id in URL we will refer the environment variable created earlier--->http://localhost:3000/students/{{id}}
+-Similarly, in DELETE request>change the URL to "http://localhost:3000/students/{{id}}" to use id environment variable variable from the repsonse of POST
+request.
+-This conclued the chaining of requests and we will execute the collection to validate it's operation. It ran successfully.
+-After the collection run concludes check the availablility of "id" in list of environment variables.
+
+
+Chaining in Remote API (Gorest APIs)-Actually APIs will be like this
+-----------------------------------
+-Google search "gorest" or go to https://gorest.co.in. This website provides 'Remote APIs' and so we will not be creating any json file in this case.
+-URL: https://gorest.co.in
+-End points for respective requests:
+POST---> /public/v2/users--->Create a new user
+GET---> /public/v2/users/356--->Get user details
+PUT|PATCH---> /public/v2/users/356--->Update user details
+DELETE---> /public/v2/users/356--->Delete user
+
+Pre-requisites for using gorest APIs-
+++++++++++++++++++++++++++++++++++++++
+
+1) Generate Token:
+Request methods PUT, POST, PATCH, DELETE needs access token, which needs to be passed with "Authorization" header as Bearer token. So, to access this
+remote API we will need to "Get your access token" from the link of same name on gorest home page.
+I have generated my token using GitHub credentials:
+
+Label			Token											Expires	Limit	Remaining
+Primary Token	01af1b8915cb6cb3deddc97d3808c9d5806c90b049710e356e69bf075c408964	Never		90	90
+
+Here,	the limit shows the maximum number of requests we can place per day using this token.
+
+
+2) Request body: (From respective requests under "cUrl Examples for REST API" part on gorest homepage)
+{
+"name":"Tenali Ramakrishna",
+"gender":"male",
+"email":"tenali.ramakrishna@15ce.com",
+"status":"inactive"
+}
+
+
+-We will implement chaining in this example by first creating a user through POST request and capturing "id" for that user to be used as input for next
+requests.
+-Next in GET request we will compare the response body to the request data provided in POST request.
+-Also, we need to use Bearer token created above to ensure proper authentication of our requests on gorest. For this we will add the Authorization Token
+in Authorization tab at collection level. Select "Bearer Token" from dropdown, enter token# in "Token" field and Save. Now this token# will apply for all
+the request within this collection but for that to happen ensure in each request>Authorization>Type>Inherit Authorization from Parent is selected.
+Here, instead of assigning token at collection level, we can also assign tokens for respective requests individually if only of the collections need that
+token for authorization but since in this all requests need this token we have assigned it at collection level.
+-Run each request one by one in correct ordder to validate the application of authorization token for all requests.
+-Day6GorestAPIChaining collection contains all 4 requests where chaining has been successfully implemented.
+
+
